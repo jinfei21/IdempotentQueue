@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>   
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yjfei.queue.mapper.TaskMapper">
+
+
+	<resultMap  id="taskResult" type="com.yjfei.queue.common.Task">
+		<result property="ID" column="id"  />
+		<result property="status" column="status" />
+		<result property="parentID" column="parentid"  />
+		<result property="content" column="content"/>
+		<result property="remark" column="remark" />
+		<result property="creator" column="creator"/>
+		<result property="modifier" column="modifier"/>
+		<result property="consumer" column="consumer"/>
+		<result property="gmtCreated" column="gmt_created"/>
+		<result property="gmtModified" column="gmt_modified"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="com.yjfei.queue.common.Task" useGeneratedKeys="true" keyProperty="ID"  flushCache="true">
+		insert into
+		queue_task(status,parentid,gmt_created,gmt_modified,creator,modifier,remark,content,consumer)
+		values(#{status},#{parentID},#{gmtCreated},#{gmtModified},#{creator},#{modifier},#{remark},#{content},#{consumer})
+	</insert>
+	
+	<update id="setAllTaskToStatus" flushCache="true">
+			update queue_task set status = #{0} where id != 0
+	</update>
+
+	<update id="update" parameterType="com.yjfei.queue.common.Task" flushCache="true">
+		update queue_task 
+		<set>
+		<if test="status != null">
+        	status = #{status}, 
+		</if>
+		<if test="parentID != null" >
+        	parentid = #{parentID}, 
+		</if>
+		<if test="content != null" >
+        	content = #{content},         
+		</if>
+		<if test="remark != null" >
+        	remark = #{remark},         
+		</if>
+		<if test="creator != null" >
+        	creator = #{creator},         
+		</if>
+		<if test="modifier != null" >
+        	modifier = #{modifier},         
+		</if>
+		<if test="gmtCreated != null" >
+        	gmt_created = #{gmtCreated}, 
+		</if>
+		<if test="gmtModified != null" >
+        	gmt_modified = #{gmtModified},         
+		</if>
+		<if test="consumer != null" >
+        	consumer = #{consumer},         
+		</if>
+		</set>
+		<where>
+		 	id=#{ID} and status != #{status}
+		</where>
+
+	</update>
+	
+	<select id="listAll" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task limit #{0},#{1}
+	</select>
+	
+	<select id="listByReverseStatus" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where status != #{0} limit #{1},#{2}
+	</select>
+	
+	<select id="listByStatus" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where status = #{0} limit #{1},#{2}
+	</select>
+	
+	<select id="listByCreateDate" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where gmt_created between #{0} and #{1} limit #{2},#{3}
+	</select>
+	
+	<select id="listByModifyDate" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where gmt_modified between #{0} and #{1} limit #{2},#{3}
+	</select>
+	
+	<select id="listByCreateUser" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where creator = #{0} limit #{1},#{2}
+	</select>
+	
+	<select id="listByModifyUser" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where modifier = #{0} limit #{1},#{2}
+	</select>
+	
+	<select id="findByID" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where id = #{0}
+	</select>
+
+	<delete id="deleteByID" flushCache="true">
+		delete from queue_task where id = #{0}
+	</delete>
+	
+	<delete id="deleteByDate" flushCache="true">
+		delete from queue_task where gmt_modified between #{0} and #{1}
+	</delete>
+
+	<delete id="deleteByDateAndStatus" flushCache="true">
+		delete from queue_task where status = #{0} and gmt_modified between #{1} and #{2} 
+	</delete>
+</mapper>  
