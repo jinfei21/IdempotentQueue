@@ -68,6 +68,10 @@
 		</where>
 	</update>
 	
+	<update id="updateStatusByID" flushCache="true">
+		update queue_task set status = #{1} where id=#{0}
+	</update>
+	
 	<update id="updateByID" flushCache="true">
 		update queue_task 
 		<set>
@@ -107,6 +111,10 @@
 		</where>
 	</update>
 	
+	<select id="listNonSuccessTask" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where status in('T','F','L') limit #{0},#{1}
+	</select>
+	
 	<select id="listAll" flushCache="true" useCache="false" resultMap="taskResult" >
 		select * from queue_task limit #{0},#{1}
 	</select>
@@ -127,12 +135,12 @@
 		select count(*) from queue_task where parentid = #{0}
 	</select>
 	
-	<select id="listByParentIDandReverseStatus" flushCache="true" useCache="false" resultMap="taskResult" >
-		select * from queue_task where parentid = #{0} and status != #{1}  limit #{2},#{3}
+	<select id="listNonSuccessTaskByParentID" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where parentid = #{0} and status in('T','F','L') limit #{1},#{2}
 	</select>
 	
-	<select id="listCountByParentIDandReverseStatus" flushCache="true" useCache="false" resultType="java.lang.Integer" >
-		select count(*) from queue_task where parentid = #{0} and status != #{1} 
+	<select id="listNonSuccessTaskCountByParentID" flushCache="true" useCache="false" resultType="java.lang.Integer" >
+		select count(*) from queue_task where parentid = #{0} and status in('T','F','L') 
 	</select>
 	
 	<select id="listByCreateDate" flushCache="true" useCache="false" resultMap="taskResult" >
