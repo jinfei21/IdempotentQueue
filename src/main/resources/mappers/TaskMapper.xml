@@ -9,6 +9,7 @@
 		<result property="ID" column="id"  />
 		<result property="status" column="status" />
 		<result property="parentID" column="parentid"  />
+		<result property="type" column="run_type"  />		
 		<result property="content" column="content"/>
 		<result property="remark" column="remark" />
 		<result property="creator" column="creator"/>
@@ -20,15 +21,15 @@
 
 	<insert id="insert" parameterType="com.yjfei.queue.common.Task" useGeneratedKeys="true" keyProperty="ID"  flushCache="true">
 		insert into
-		queue_task(status,parentid,gmt_created,gmt_modified,creator,modifier,remark,content,consumer)
-		values(#{status},#{parentID},#{gmtCreated},#{gmtModified},#{creator},#{modifier},#{remark},#{content},#{consumer})
+		queue_task(status,parentid,run_type,gmt_created,gmt_modified,creator,modifier,remark,content,consumer)
+		values(#{status},#{parentID},#{type},#{gmtCreated},#{gmtModified},#{creator},#{modifier},#{remark},#{content},#{consumer})
 	</insert>
 	
 	<update id="setAllTaskToStatus" flushCache="true">
 			update queue_task set status = #{0} where id != 0
 	</update>
 
-	<update id="update" parameterType="com.yjfei.queue.common.Task" flushCache="true">
+	<update id="updateByIDandReverseStatus" parameterType="com.yjfei.queue.common.Task" flushCache="true">
 		update queue_task 
 		<set>
 		<if test="status != null">
@@ -36,6 +37,9 @@
 		</if>
 		<if test="parentID != null" >
         	parentid = #{parentID}, 
+		</if>
+		<if test="type != null" >
+        	run_type = #{type}, 
 		</if>
 		<if test="content != null" >
         	content = #{content},         
@@ -62,7 +66,45 @@
 		<where>
 		 	id=#{ID} and status != #{status}
 		</where>
-
+	</update>
+	
+	<update id="updateByID" flushCache="true">
+		update queue_task 
+		<set>
+		<if test="status != null">
+        	status = #{status}, 
+		</if>
+		<if test="parentID != null" >
+        	parentid = #{parentID}, 
+		</if>
+		<if test="type != null" >
+        	run_type = #{type}, 
+		</if>
+		<if test="content != null" >
+        	content = #{content},         
+		</if>
+		<if test="remark != null" >
+        	remark = #{remark},         
+		</if>
+		<if test="creator != null" >
+        	creator = #{creator},         
+		</if>
+		<if test="modifier != null" >
+        	modifier = #{modifier},         
+		</if>
+		<if test="gmtCreated != null" >
+        	gmt_created = #{gmtCreated}, 
+		</if>
+		<if test="gmtModified != null" >
+        	gmt_modified = #{gmtModified},         
+		</if>
+		<if test="consumer != null" >
+        	consumer = #{consumer},         
+		</if>
+		</set>
+		<where>
+		 	id=#{ID}
+		</where>
 	</update>
 	
 	<select id="listAll" flushCache="true" useCache="false" resultMap="taskResult" >
@@ -75,6 +117,22 @@
 	
 	<select id="listByStatus" flushCache="true" useCache="false" resultMap="taskResult" >
 		select * from queue_task where status = #{0} limit #{1},#{2}
+	</select>
+	
+	<select id="listByParentID" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where parentid = #{0} limit #{1},#{2}
+	</select>
+	
+	<select id="listCountByParentID" flushCache="true" useCache="false" resultType="java.lang.Integer" >
+		select count(*) from queue_task where parentid = #{0}
+	</select>
+	
+	<select id="listByParentIDandReverseStatus" flushCache="true" useCache="false" resultMap="taskResult" >
+		select * from queue_task where parentid = #{0} and status != #{1}  limit #{2},#{3}
+	</select>
+	
+	<select id="listCountByParentIDandReverseStatus" flushCache="true" useCache="false" resultType="java.lang.Integer" >
+		select count(*) from queue_task where parentid = #{0} and status != #{1} 
 	</select>
 	
 	<select id="listByCreateDate" flushCache="true" useCache="false" resultMap="taskResult" >
