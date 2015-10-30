@@ -72,6 +72,10 @@
 		update queue_task set status = #{1} where id=#{0}
 	</update>
 	
+	<update id="updateStatusByIDandStatus" flushCache="true">
+		update queue_task set status = #{3},modifier=#{4},gmt_modified=#{5} where id=#{0} and status=#{1} and run_type=#{2}
+	</update>
+	
 	<update id="updateByID" flushCache="true">
 		update queue_task 
 		<set>
