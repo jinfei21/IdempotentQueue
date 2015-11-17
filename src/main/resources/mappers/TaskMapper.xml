@@ -7,42 +7,43 @@
 
 	<resultMap  id="taskResult" type="com.yjfei.queue.common.Task">
 		<result property="ID" column="id"  />
-		<result property="status" column="status" />
+		<result property="status" column="task_status" />
 		<result property="parentID" column="parentid"  />
-		<result property="type" column="run_type"  />		
-		<result property="content" column="content"/>
+		<result property="direction" column="run_direct"  />		
+		<result property="businessType" column="business_type"/>
+		<result property="lockTime" column="lock_time"/>
+		<result property="params" column="params"/>
 		<result property="remark" column="remark" />
 		<result property="creator" column="creator"/>
 		<result property="modifier" column="modifier"/>
-		<result property="consumer" column="consumer"/>
 		<result property="gmtCreated" column="gmt_created"/>
 		<result property="gmtModified" column="gmt_modified"/>
 	</resultMap>
 
 	<insert id="insert" parameterType="com.yjfei.queue.common.Task" useGeneratedKeys="true" keyProperty="ID"  flushCache="true">
 		insert into
-		queue_task(status,parentid,run_type,gmt_created,gmt_modified,creator,modifier,remark,content,consumer)
-		values(#{status},#{parentID},#{type},#{gmtCreated},#{gmtModified},#{creator},#{modifier},#{remark},#{content},#{consumer})
+		queue_task(task_status,parentid,run_direct,gmt_created,gmt_modified,creator,modifier,remark,params,business_type,lock_time)
+		values(#{status},#{parentID},#{direction},#{gmtCreated},#{gmtModified},#{creator},#{modifier},#{remark},#{params},#{businessType},#{lockTime})
 	</insert>
 	
 	<update id="setAllTaskToStatus" flushCache="true">
-			update queue_task set status = #{0} where id != 0
+			update queue_task set task_status = #{0} where id != 0
 	</update>
 
 	<update id="updateByIDandReverseStatus" parameterType="com.yjfei.queue.common.Task" flushCache="true">
 		update queue_task 
 		<set>
 		<if test="status != null">
-        	status = #{status}, 
+        	task_status = #{status}, 
 		</if>
 		<if test="parentID != null" >
         	parentid = #{parentID}, 
 		</if>
-		<if test="type != null" >
-        	run_type = #{type}, 
+		<if test="direction != null" >
+        	run_direct = #{direction}, 
 		</if>
-		<if test="content != null" >
-        	content = #{content},         
+		<if test="params != null" >
+        	params = #{params},         
 		</if>
 		<if test="remark != null" >
         	remark = #{remark},         
@@ -59,37 +60,40 @@
 		<if test="gmtModified != null" >
         	gmt_modified = #{gmtModified},         
 		</if>
-		<if test="consumer != null" >
-        	consumer = #{consumer},         
+		<if test="businessType != null" >
+        	business_type = #{businessType},         
 		</if>
+		<if test="lockTime != null" >
+        	lock_time = #{lockTime},         
+		</if>		
 		</set>
 		<where>
-		 	id=#{ID} and status != #{status}
+		 	id=#{ID} and task_status != #{status}
 		</where>
 	</update>
 	
 	<update id="updateStatusByID" flushCache="true">
-		update queue_task set status = #{1} where id=#{0}
+		update queue_task set task_status = #{1} where id=#{0}
 	</update>
 	
 	<update id="updateStatusByIDandStatus" flushCache="true">
-		update queue_task set status = #{3},modifier=#{4},gmt_modified=#{5} where id=#{0} and status=#{1} and run_type=#{2}
+		update queue_task set task_status = #{3},modifier=#{4},gmt_modified=#{5} where id=#{0} and task_status=#{1} and run_direct=#{2}
 	</update>
 	
 	<update id="updateByID" flushCache="true">
 		update queue_task 
 		<set>
 		<if test="status != null">
-        	status = #{status}, 
+        	task_status = #{status}, 
 		</if>
 		<if test="parentID != null" >
         	parentid = #{parentID}, 
 		</if>
-		<if test="type != null" >
-        	run_type = #{type}, 
+		<if test="direction != null" >
+        	run_direct = #{direction}, 
 		</if>
-		<if test="content != null" >
-        	content = #{content},         
+		<if test="params != null" >
+        	params = #{params},         
 		</if>
 		<if test="remark != null" >
         	remark = #{remark},         
@@ -106,9 +110,12 @@
 		<if test="gmtModified != null" >
         	gmt_modified = #{gmtModified},         
 		</if>
-		<if test="consumer != null" >
-        	consumer = #{consumer},         
+		<if test="businessType != null" >
+        	business_type = #{businessType},         
 		</if>
+		<if test="lockTime != null" >
+        	lock_time = #{lockTime},         
+		</if>	
 		</set>
 		<where>
 		 	id=#{ID}
@@ -116,7 +123,7 @@
 	</update>
 	
 	<select id="listNonSuccessTask" flushCache="true" useCache="false" resultMap="taskResult" >
-		select * from queue_task where status in('T','F','L') limit #{0},#{1}
+		select * from queue_task where task_status in('T','F','L') limit #{0},#{1}
 	</select>
 	
 	<select id="listAll" flushCache="true" useCache="false" resultMap="taskResult" >
@@ -124,11 +131,11 @@
 	</select>
 	
 	<select id="listByReverseStatus" flushCache="true" useCache="false" resultMap="taskResult" >
-		select * from queue_task where status != #{0} limit #{1},#{2}
+		select * from queue_task where task_status != #{0} limit #{1},#{2}
 	</select>
 	
 	<select id="listByStatus" flushCache="true" useCache="false" resultMap="taskResult" >
-		select * from queue_task where status = #{0} limit #{1},#{2}
+		select * from queue_task where task_status = #{0} limit #{1},#{2}
 	</select>
 	
 	<select id="listByParentID" flushCache="true" useCache="false" resultMap="taskResult" >
@@ -140,11 +147,11 @@
 	</select>
 	
 	<select id="listNonSuccessTaskByParentID" flushCache="true" useCache="false" resultMap="taskResult" >
-		select * from queue_task where parentid = #{0} and status in('T','F','L') limit #{1},#{2}
+		select * from queue_task where parentid = #{0} and task_status in('T','F','L') limit #{1},#{2}
 	</select>
 	
 	<select id="listNonSuccessTaskCountByParentID" flushCache="true" useCache="false" resultType="java.lang.Integer" >
-		select count(*) from queue_task where parentid = #{0} and status in('T','F','L') 
+		select count(*) from queue_task where parentid = #{0} and task_status in('T','F','L') 
 	</select>
 	
 	<select id="listByCreateDate" flushCache="true" useCache="false" resultMap="taskResult" >
@@ -176,6 +183,6 @@
 	</delete>
 
 	<delete id="deleteByDateAndStatus" flushCache="true">
-		delete from queue_task where status = #{0} and gmt_modified between #{1} and #{2} 
+		delete from queue_task where task_status = #{0} and gmt_modified between #{1} and #{2} 
 	</delete>
 </mapper>  
