@@ -123,7 +123,7 @@
 	</update>
 	
 	<select id="listNonSuccessTask" flushCache="true" useCache="false" resultMap="taskResult" >
-		select * from queue_task where task_status in('T','F','L') limit #{0},#{1}
+		select * from queue_task where task_status in('T','F','L') and gmt_modified between DATE_SUB(now(), INTERVAL 3 DAY) and now() limit #{0},#{1}
 	</select>
 	
 	<select id="listAll" flushCache="true" useCache="false" resultMap="taskResult" >
