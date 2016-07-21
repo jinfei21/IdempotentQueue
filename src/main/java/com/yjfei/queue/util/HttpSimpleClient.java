@@ -4,7 +4,7 @@ public class HttpSimpleClient {
 	private static Proxy proxy;
 	
 	public static void initProxy(String host,int port){
-		 proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8080));
+		 proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, 8080));
 	}
 
 	public static HttpResult httpGet(String url, List<String> headers,
@@ -139,11 +139,11 @@ public class HttpSimpleClient {
 	
 	public static void main(String args[]){
 		
-		String url = "http://api.wallstreetcn.com/v2/livenews";
+		String url = "http://www.baidu.com";
 		
 		try {
 			
-			HttpSimpleClient.initProxy("10.59.103.238", 8080);
+			HttpSimpleClient.initProxy(host, 8080);
 			HttpResult result = HttpSimpleClient.httpGet(url, null, null, "utf-8", 50000L);
 			
 			
